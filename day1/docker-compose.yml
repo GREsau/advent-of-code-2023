@@ -1,0 +1,8 @@
+---
+version: '3.8'
+
+services:
+  main:
+    image: fukamachi/sbcl:2.3.11
+    volumes:
+      - ".:/data"

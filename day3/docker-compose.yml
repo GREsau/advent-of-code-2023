@@ -1,0 +1,8 @@
+---
+version: '3.8'
+
+services:
+  main:
+    image: gnuoctave/octave:8.4.0
+    volumes:
+      - ".:/data"

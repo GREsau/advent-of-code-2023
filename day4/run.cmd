@@ -1,0 +1,1 @@
+docker compose run -T --rm main < .\input.txt

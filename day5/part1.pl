@@ -1,4 +1,4 @@
-use_module(library(dcg/basics)).
+:- use_module(library(dcg/basics)).
 
 run(O) :-
   phrase_from_file(input_file(S, SS, SF, FW, WL, LT, TH, HL), "input.txt"),

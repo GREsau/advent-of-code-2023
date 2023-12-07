@@ -1,0 +1,9 @@
+---
+version: '3.8'
+
+services:
+  main:
+    image: ocaml/opam
+    volumes:
+      - ".:/data"
+    working_dir: "/data"

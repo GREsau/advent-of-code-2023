@@ -10,4 +10,4 @@ services:
     working_dir: /data
     entrypoint: /bin/sh -c
     command:
-      - "cobc -o /main -free -x main.cbl parse-input.cbl parse-node.cbl part1.cbl part2.cbl && /main"
+      - "cobc -O2 -o /main -free -x main.cbl lcm.cbl parse-input2.cbl parse-input.cbl parse-node.cbl part1.cbl part2.cbl && /main"

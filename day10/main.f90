@@ -1,5 +1,6 @@
 program main
   use part1
+  use part2
   implicit none
 
   character(200), dimension(200) :: lines
@@ -13,5 +14,6 @@ program main
   close(io)
 
   call part1_run(lines)
+  call part2_run(lines)
 
 end program main

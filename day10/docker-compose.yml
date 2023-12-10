@@ -10,4 +10,4 @@ services:
     working_dir: /data
     entrypoint: /bin/sh -c
     command:
-      - "gfortran -fmax-errors=1 part1.f90 main.f90 -o /main && /main"
+      - "gfortran -fmax-errors=1 part1.f90 part2.f90 main.f90 -o /main && /main"

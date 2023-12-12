@@ -1,0 +1,10 @@
+---
+version: "3.8"
+
+services:
+  main:
+    image: elixir
+    volumes:
+      - ".:/data"
+    working_dir: /data
+    command: elixir main.exs

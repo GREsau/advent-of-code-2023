@@ -11,3 +11,6 @@ lines = Enum.map(File.stream!("input.txt"), &Main.parse_line/1)
 
 Code.compile_file("part1.exs")
 Part1.run(lines)
+
+Code.compile_file("part2.exs")
+Part2.run(lines)

@@ -1,0 +1,6 @@
+b__*
+*.adb.stderr
+*.adb.stdout
+*.ali
+*.bexch
+*.o

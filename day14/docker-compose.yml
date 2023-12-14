@@ -1,0 +1,12 @@
+---
+version: "3.8"
+
+services:
+  main:
+    image: ponylang/ponyc
+    volumes:
+      - ".:/aoc"
+    working_dir: /aoc
+    entrypoint: /bin/sh -c
+    command:
+      - "ponyc -o /tmp && /tmp/aoc"

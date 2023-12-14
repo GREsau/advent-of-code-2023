@@ -2,8 +2,6 @@ use "collections"
 use "files"
 use "itertools"
 
-type Line is Array[U8 val]
-
 actor Part1
   let env: Env
   let lines: Array[Line ref] = []
@@ -53,6 +51,3 @@ actor Part1
       row = row + 1
     end
     result
-
-  fun message(): String =>
-    "this is the message!"

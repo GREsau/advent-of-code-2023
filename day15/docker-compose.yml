@@ -1,0 +1,10 @@
+---
+version: "3.8"
+
+services:
+  main:
+    image: rundockerforth/gforth-alpine
+    volumes:
+      - ".:/aoc"
+    working_dir: /aoc
+    command: main.fs -e bye

@@ -1,0 +1,10 @@
+---
+version: "3.8"
+
+services:
+  main:
+    image: swift:5.9.2
+    volumes:
+      - ".:/aoc"
+    working_dir: /aoc
+    command: swift part1.swift

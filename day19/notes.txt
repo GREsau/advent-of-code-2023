@@ -1,0 +1,25 @@
+Part1:
+set wf-px function[x m a s] [
+  if a < 2006 [
+    return wf-qkq x m a s
+  ]
+  if m > 2090 [
+    return wf-A x m a s
+  ]
+  wf-rfg x m a s
+]
+
+Part2:
+set wf-px function[x m a s] [
+  rest: as-pair 2006 pick a 2
+  a: as-pair pick a 1 2006
+  wf-qkq x m a s
+  a: rest
+
+  rest: as-pair pick m 1 (2090 + 1)
+  m: as-pair (2090 + 1) pick m 2
+  wf-A x m a s
+  m: lo
+
+  wf-rfg x m a s
+]

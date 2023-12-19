@@ -8,3 +8,4 @@ services:
     volumes:
       - ".:/aoc"
     working_dir: /aoc
+    command: ["red", "main.red"]

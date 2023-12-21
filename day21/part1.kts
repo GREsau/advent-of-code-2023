@@ -41,3 +41,20 @@ for (t in 1..64) {
 }
 
 println("Part 1: ${currentSpaces.size}")
+
+/*
+for (x in -29..35) {
+  for (y in -29..35) {
+    if (Point(x,y) in currentSpaces) {
+      print("O ")
+    } else if (Point(x,y) in rocks) {
+      print("# ")
+    } else if (Point(x,y) == start) {
+      print("S ")
+    } else {
+      print(". ")
+    }
+  }
+  println()
+}
+*/

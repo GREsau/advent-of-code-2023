@@ -5,11 +5,17 @@ use v5.32;
 use autodie;
 use Data::Dumper;
 
-package part1;
+package part2;
 
+# mutates $_[0]
 sub pushUniq {
-    my %hash = map { $_, 1 } @{$_[0]};
-    push @{(shift)}, (grep !$hash{$_}++, @_);
+  my %hash = map { $_, 1 } @{$_[0]};
+  push @{(shift)}, (grep !$hash{$_}++, @_);
+}
+
+sub intersect {
+  my %hash = map { $_, 1 } @{(shift)};
+  grep { exists($hash{$_}) } @{(shift)};
 }
 
 my @inputBricks;
@@ -34,7 +40,7 @@ close($fh);
 @inputBricks = sort { $a->{zRange}->[0] <=> $b->{zRange}->[0] } @inputBricks;
 
 my %settledBricks;
-my @criticalBricks;
+my %kDirectlySupportedByV = map { $_->{lineNum}, [] } @inputBricks;
 
 for my $inputBrick (@inputBricks) {
   my $lineNum = $inputBrick->{lineNum};
@@ -65,9 +71,7 @@ for my $inputBrick (@inputBricks) {
     $potentialFall++;
   }
 
-  if (scalar @supportingBricks == 1) {
-    pushUniq \@criticalBricks, @supportingBricks;
-  }
+  pushUniq \@{$kDirectlySupportedByV{$lineNum}}, @supportingBricks;
 
   my $actualFall = $potentialFall-1;
 
@@ -87,6 +91,27 @@ for my $inputBrick (@inputBricks) {
   }
 }
 
-my $unneededBricks = scalar @inputBricks - scalar @criticalBricks;
+my %kCriticallySupportedByV = map { $_->{lineNum}, [] } @inputBricks;
+for my $inputBrick (@inputBricks) {
+  my $lineNum = $inputBrick->{lineNum};
+  my @directSupports = @{$kDirectlySupportedByV{$lineNum}};
 
-print "Part 1: $unneededBricks\n";
+  if (my $supporter = shift @directSupports) {
+    my @criticalSupports = ($supporter, @{$kCriticallySupportedByV{$supporter}});
+
+    for $supporter (@directSupports) {
+      my @cs2 = ($supporter, @{$kCriticallySupportedByV{$supporter}});
+      @criticalSupports = intersect \@criticalSupports, [$supporter, @{$kCriticallySupportedByV{$supporter}}];
+    }
+
+    $kCriticallySupportedByV{$lineNum} = [@criticalSupports];
+  }
+}
+
+my $result = 0;
+for (values %kCriticallySupportedByV) {
+  $result += scalar @$_;
+}
+
+print "Part 2: $result\n";
+

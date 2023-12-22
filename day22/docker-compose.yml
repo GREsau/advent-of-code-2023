@@ -1,0 +1,10 @@
+---
+version: "3.8"
+
+services:
+  main:
+    image: perl
+    volumes:
+      - ".:/aoc"
+    working_dir: /aoc
+    command: ["perl", "main.pl"]

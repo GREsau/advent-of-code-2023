@@ -7,4 +7,6 @@ services:
     volumes:
       - ".:/aoc"
     working_dir: /aoc
-    command: ["inko", "run", "src/main.inko"]
+    entrypoint: /bin/sh -c
+    command:
+      - "inko build --opt aggressive -o /tmp/aoc-main src/main.inko && /tmp/aoc-main"

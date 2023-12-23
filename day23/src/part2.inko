@@ -1,5 +1,206 @@
 import std.stdio.STDOUT
+import std.fs.file.ReadOnlyFile
+import std.set.Set
+import std.fmt.(fmt, Format, Formatter)
+import std.clone.Clone
+import std.cmp.Equal
+import std.cmp
 
 fn pub run {
-  STDOUT.new.print('Part 2: TODO')
+  let graph = build_graph()
+
+  let result = graph.start_distance + search(graph, graph.start_idx, Set.new) + graph.end_distance
+
+  STDOUT.new.print('Part 2: ' + result.to_string)
+}
+
+fn search(graph: ref Graph, start: Int, visited: ref Set[Int]) -> Int {
+  let distances = graph.junction_distances.get(start)
+
+  let mut visited = clone_set(visited)
+  visited.insert(start.clone())
+
+  let result = distances.iter.with_index.reduce(-1) fn (max, tuple) {
+    let idx = tuple.0
+    let distance = tuple.1
+
+    if distance == -1 or visited.contains?(idx) {
+      return max
+    }
+
+    let result = if idx == graph.end_idx {
+      0
+    } else {
+      search(graph, idx, visited)
+    }
+
+    if result == -1 {
+      return max
+    }
+
+    return cmp.max(max, result + distance)
+  }
+
+  result
+}
+
+fn clone_set (s: ref Set[Int]) -> Set[Int] {
+  let mut result = Set.new
+  s.iter.each fn (el) {
+    result.insert(el.clone)
+  }
+  result
+}
+
+class Graph {
+  let @start_idx: Int
+  let @end_idx: Int
+  let @start_distance: Int
+  let @end_distance: Int
+  let @junction_distances: Array[Array[Int]]
+}
+
+impl Format for Graph {
+  fn pub fmt(formatter: mut Formatter) {
+    formatter.object('Graph')
+      .field('start_idx', @start_idx)
+      .field('end_idx', @end_idx)
+      .field('start_distance', @start_distance)
+      .field('end_distance', @end_distance)
+      .field('junction_distances', @junction_distances)
+      .finish
+  }
+}
+
+fn build_graph() -> Graph {
+  let paths = read_input()
+  let start = paths.iter.next.unwrap().clone()
+  let target = paths.iter.last.unwrap().clone()
+
+  let mut junctions: Array[(Int, Int)] = []
+  let mut junction_distances: Array[Map[Int, Int]] = []
+
+  let result = distance_to_node(paths, (-1,-1), start.clone())
+  let start_distance = result.0.clone()
+  junctions.push(result.1.clone())
+
+  let mut end_distance = []
+  let mut end_idx = []
+
+  let mut idx = 0
+  while junction_distances.size < junctions.size {
+    let j = junctions.get(idx)
+    let mut distances = Map.new
+
+    let neighbours = [(j.0 + 1, j.1), (j.0 - 1, j.1), (j.0, j.1 + 1), (j.0, j.1 - 1)]
+    neighbours.into_iter.select fn (n: ref (Int, Int)) { paths.contains?(n) }.each fn (n: (Int, Int)) {
+      let result = distance_to_node(paths, j.clone(), n)
+      let distance = result.0.clone()+1
+      let node2 = result.1.clone()
+
+      if node2 == target {
+        end_distance.push(distance)
+        end_idx.push(idx)
+        return
+      }
+      if node2 == start {
+        assert_eq(distance, start_distance)
+        assert_eq(idx, 0)
+        return
+      }
+
+      let idx2 = match junctions.index_of(node2) {
+        case Some(idx) -> idx
+        case None -> {
+          junctions.push(node2)
+          junctions.size - 1
+        }
+      }
+
+      let prev_distance = distances.opt(idx2).unwrap_or(-1)
+      distances.set(idx2, cmp.max(prev_distance, distance))
+    }
+
+    junction_distances.push(distances)
+
+    idx += 1
+  }
+
+  assert_eq(end_distance.size, 1)
+  assert_eq(end_idx.size, 1)
+
+  Graph {
+    @start_idx = 0,
+    @end_idx = end_idx.pop.unwrap(),
+    @start_distance = start_distance,
+    @end_distance = end_distance.pop.unwrap(),
+    @junction_distances = junction_distances.into_iter
+      .map(fn (m) { map_to_array(m, junctions.size) }).to_array
+  }
+}
+
+fn map_to_array(map: Map[Int, Int], count: Int) -> Array[Int] {
+  let mut result = Array.filled(with: -1, times: count)
+  map.into_iter.each fn (kv) {
+    result.set(kv.key, kv.value)
+  }
+  result
+}
+
+fn distance_to_node(paths: ref Set[(Int, Int)], prev: (Int, Int), start: (Int, Int)) -> (Int, (Int, Int)) {
+  let mut prev = prev
+  let mut current = start
+
+  let mut distance = 0
+
+  loop {
+    let neighbours = [
+      (current.0 + 1, current.1),
+      (current.0 - 1, current.1),
+      (current.0, current.1 + 1),
+      (current.0, current.1 - 1)
+    ]
+
+    let neighbours = neighbours.into_iter.select fn (n: ref (Int, Int)) {
+      return n != prev and paths.contains?(n)
+    }.to_array
+
+    match neighbours.size {
+      case 1 -> {
+        prev = current
+        current = neighbours.pop().unwrap()
+      }
+      case _ -> {
+        return (distance, current)
+      }
+    }
+
+    distance += 1
+  }
+}
+
+fn assert_eq[T: Format + Equal[ref T]] (a: T, b: T) {
+  if a != b {
+    panic("Expected equal: '" + fmt(a) + "' and '" + fmt(b) + "'")
+  }
+}
+
+fn read_input -> Set[(Int, Int)] {
+  let file = ReadOnlyFile.new('input.txt').expect('failed to open input file')
+  let mut bytes = ByteArray.new
+  file.read_all(bytes).expect('failed to read input file')
+
+  let mut paths = Set.new
+
+  bytes.into_string().split("\n").each_with_index fn (y, line) {
+    line.chars.each_with_index fn (x, char) {
+      let tile = match char {
+        case '.' or '^' or '>' or 'v' or '<' -> paths.insert((x, y))
+        case '#' or "\r" -> return
+        case _ -> panic('unexpected char in input: ' + char)
+      }
+    }
+  }
+
+  paths
 }

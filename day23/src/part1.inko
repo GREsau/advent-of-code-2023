@@ -1,0 +1,168 @@
+import std.stdio.STDOUT
+import std.fs.file.ReadOnlyFile
+import std.set.Set
+import std.fmt.(fmt, Format, Formatter)
+import std.clone.Clone
+import std.cmp
+
+fn pub run {
+  let input = read_input
+  let start = input.keys.next.unwrap().clone()
+  let target = input.keys.last.unwrap().clone()
+
+  let result = search(input, (-1,-1), start, Tile.Path, target, Set.new)
+
+  STDOUT.new.print('Part 1: ' + result.to_string())
+}
+
+fn search(
+  input: ref Map[(Int, Int), Tile],
+  prev: (Int, Int),
+  current: (Int, Int),
+  tile: Tile,
+  target: (Int, Int),
+  visited_junctions: ref Set[(Int, Int)])
+  -> Int {
+  let mut prev = prev
+  let mut current = current
+  let mut tile = tile
+
+  let mut result = 0
+
+  loop {
+    if current == target {
+      return result
+    }
+
+    result += 1
+
+    let neighbours = match tile {
+      case Path -> [
+        (current.0 + 1, current.1),
+        (current.0 - 1, current.1),
+        (current.0, current.1 + 1),
+        (current.0, current.1 - 1)
+      ]
+      case SlopeUp -> [
+        (current.0, current.1 - 1)
+      ]
+      case SlopeRight -> [
+        (current.0 + 1, current.1)
+      ]
+      case SlopeDown -> [
+        (current.0, current.1 + 1)
+      ]
+      case SlopeLeft -> [
+        (current.0 - 1, current.1)
+      ]
+    }
+
+    let neighbours = neighbours.into_iter.select_map fn (n: (Int, Int)) {
+      if n == prev or visited_junctions.contains?(n) {
+        return Option.None
+      }
+      match input.opt(n) {
+        case Some(t) -> Option.Some((n, t.clone())),
+        case None -> Option.None
+      }
+    }.to_array
+
+    match neighbours.size {
+      case 0 -> return -1
+      case 1 -> {
+        prev = current
+        let n = neighbours.pop().unwrap()
+        current = n.0.clone()
+        tile = n.1.clone()
+      }
+      case _ -> {
+        let mut visited_junctions = clone_set(visited_junctions)
+        visited_junctions.insert(current.clone())
+
+        let max = neighbours.into_iter.reduce(-1) fn (max, n) {
+          cmp.max(max, search(
+            input,
+            current.clone(),
+            n.0.clone(),
+            n.1.clone(),
+            target.clone(),
+            visited_junctions
+          ))
+        }
+
+        if max == -1 {
+          return -1
+        } else {
+          return result + max
+        }
+      }
+    }
+  }
+}
+
+fn clone_set(s: ref Set[(Int, Int)]) -> Set[(Int, Int)] {
+  let mut result = Set.new
+  s.iter.each fn (tuple) {
+    result.insert(tuple.clone)
+  }
+  result
+}
+
+class enum Tile {
+  case Path
+  case SlopeUp
+  case SlopeRight
+  case SlopeDown
+  case SlopeLeft
+}
+
+impl Format for Tile {
+  fn pub fmt(formatter: mut Formatter) {
+    formatter.write("'")
+    formatter.write(match self {
+      case Path -> '.'
+      case SlopeUp -> '^'
+      case SlopeRight -> '>'
+      case SlopeDown -> 'v'
+      case SlopeLeft -> '<'
+    })
+    formatter.write("'")
+  }
+}
+
+impl Clone[Tile] for Tile {
+  fn pub clone -> Tile {
+    match self {
+      case Path -> Tile.Path
+      case SlopeUp -> Tile.SlopeUp
+      case SlopeRight -> Tile.SlopeRight
+      case SlopeDown -> Tile.SlopeDown
+      case SlopeLeft -> Tile.SlopeLeft
+    }
+  }
+}
+
+fn read_input -> Map[(Int, Int), Tile] {
+  let file = ReadOnlyFile.new('input.txt').expect('failed to open input file')
+  let mut bytes = ByteArray.new
+  file.read_all(bytes).expect('failed to read input file')
+
+  let mut input = Map.new
+
+  bytes.into_string().split("\n").each_with_index fn (y, line) {
+    line.chars.each_with_index fn (x, char) {
+      let tile = match char {
+        case '.' -> Tile.Path
+        case '^' -> Tile.SlopeUp
+        case '>' -> Tile.SlopeRight
+        case 'v' -> Tile.SlopeDown
+        case '<' -> Tile.SlopeLeft
+        case '#' or "\r" -> return
+        case _ -> panic('unexpected char in input: ' + char)
+      }
+      input.set((x, y), tile)
+    }
+  }
+
+  input
+}

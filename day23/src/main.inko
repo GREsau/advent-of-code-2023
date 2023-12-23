@@ -1,0 +1,9 @@
+import part1
+import part2
+
+class async Main {
+  fn async main {
+    part1.run
+    part2.run
+  }
+}

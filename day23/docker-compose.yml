@@ -1,0 +1,10 @@
+---
+version: "3.8"
+
+services:
+  main:
+    image: ghcr.io/inko-lang/inko
+    volumes:
+      - ".:/aoc"
+    working_dir: /aoc
+    command: ["inko", "run", "src/main.inko"]

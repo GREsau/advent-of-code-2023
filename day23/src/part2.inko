@@ -1,0 +1,5 @@
+import std.stdio.STDOUT
+
+fn pub run {
+  STDOUT.new.print('Part 2: TODO')
+}

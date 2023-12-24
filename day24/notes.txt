@@ -1,0 +1,10 @@
+y = (x - x0)dy/dx + y0
+y = (x - x0')dy'/dx' + y0'
+
+x * dy/dx - x0 * dy/dx + y0 = x * dy'/dx' - x0' * dy'/dx' + y0'
+x * dy/dx - x * dy'/dx' = - x0' * dy'/dx' + x0 * dy/dx + y0' - y0
+x * (dy/dx - dy'/dx') = - x0' * dy'/dx' + x0 * dy/dx + y0' - y0
+x = (x0 * dy/dx - x0' * dy'/dx' + y0' - y0) / (dy/dx - dy'/dx')
+x = (x0 * dy/dx - x0' * dy'/dx' + y0' - y0)*(dx*dx') / (dy*dx' - dy'*dx)
+
+x = (x0 * dy * dx' - x0' * dy' * dx + (y0' - y0) * dx * dx') / (dy*dx' - dy'*dx)

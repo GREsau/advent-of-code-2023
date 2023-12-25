@@ -1,0 +1,21 @@
+---
+version: "3.8"
+
+services:
+  # interactive:
+  #   image: dyalog/dyalog
+  #   volumes:
+  #     - ".:/aoc"
+  #   working_dir: /aoc
+  #   environment:
+  #     - RIDE_INIT=http:*:8888
+  #   ports:
+  #     - 8888:8888
+
+  main:
+    image: dyalog/dyalog
+    volumes:
+      - ".:/aoc"
+    working_dir: /aoc
+    entrypoint: dyalogscript
+    command: part1.apl

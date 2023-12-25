@@ -16,6 +16,7 @@ const Hailstone = struct {
 
 pub fn run() !void {
     const hailstones = try read_input();
+    defer hailstones.deinit();
 
     const rangeFrom = 7;
     const rangeTo = 27;

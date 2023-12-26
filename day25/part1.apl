@@ -9,9 +9,9 @@ graph ← graph,((⍴words)-⍴graph)⍴⍬
 ⍝ change graph from directed to undirected
 graph ← {{⍵/⍳⍴⍵}¨↓⍵}∘{⍵∨⍉⍵}∘{⍉(⍳⍴⍵)∘.∊⍵}graph
 
-⍝ remove path between 1 and ⍵ from graph ⍵
+⍝ remove path between 1 and ⍵ from graph ⍺
 rempath1 ← {p ← ⍺ path 1 ⍵ ⋄ e ← ↓⍉↑(¯1↓p)(1↓p) ⋄ e ← e,⌽¨e ⋄ ⊃remlink⍨/e,⊂⍺}
-⍝ repeats rempath1 and again and again
+⍝ remove three paths between 1 and ⍵ from graph ⍺
 rempath1p3 ← {⍵∘(rempath1⍨⍣3)⍺}
 
 partition ← {+/¯2=(⍺ rempath1p3 ⍵)span 1}
